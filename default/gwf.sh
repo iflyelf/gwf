@@ -57,7 +57,7 @@ curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' 
 curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/gfw.txt' > gwf.tmp
 curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/greatfire.txt' > greatfire.tmp
 curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/Loyalsoldier/domain-list-custom/release/tld-!cn.txt' | perl -ne '/^domain:([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "$1\n"' | sed "s/|/'/g" | xargs -n 1 | sort -u | uniq > tld-not-cn.tmp
-curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/danxiaonuo/gwf/refs/heads/main/smartdns/smartdns_gfw_tmp_domain.conf' > smartdns_gfw_tmp_domain.tmp
+curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/iflyelf/gwf/refs/heads/main/smartdns/smartdns_gfw_tmp_domain.conf' > smartdns_gfw_tmp_domain.tmp
 
 cat tld-not-cn.tmp > proxy.tmp
 cat google.china.tmp | perl -ne '/^server=\/([^\/]+)\// && print "$1\n"' | sed "s/|/'/g" >> proxy.tmp

@@ -1,9 +1,8 @@
 #=================================================
-# https://github.com/danxiaonuo/gwf
+# https://github.com/iflyelf/gwf
 # Description: Build gwf using GitHub Actions
-# Lisence: MIT
-# Author: danxiaonuo
-# Blog: https://www.danxiaonuo.com
+# License: MIT
+# Author: iflyelf
 #=================================================
 
 name: 自动更新GWF库
