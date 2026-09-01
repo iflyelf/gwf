@@ -23,6 +23,11 @@ on:
   watch:  
      types: [started]
    
+# 授予工作流写权限（用于自动提交及删除旧的 workflow run）
+permissions:
+  contents: write
+  actions: write
+
 # 任务集
 jobs:
   gwf:
