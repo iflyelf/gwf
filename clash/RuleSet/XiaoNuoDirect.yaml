@@ -34,7 +34,7 @@ payload:
   - IP-CIDR6,fc00::/7,no-resolve
   - IP-CIDR6,fe80::/10,no-resolve
   - IP-CIDR6,fd00::/8,no-resolve
-  
+
   # Router managed 路由器管理域名
   - DOMAIN,router.asus.com
   - DOMAIN-SUFFIX,hiwifi.com
@@ -47,7 +47,7 @@ payload:
   - DOMAIN-SUFFIX,routerlogin.com
   - DOMAIN-SUFFIX,tendawifi.com
   - DOMAIN-SUFFIX,zte.home
-  
+
   # 域名后缀匹配
   - DOMAIN-SUFFIX,home.arpa
   - DOMAIN-SUFFIX,msftconnecttest.com
@@ -59,23 +59,18 @@ payload:
 
   # xiaonuo标志
   # 域名后缀匹配
-  - DOMAIN-SUFFIX,iflyelf.com
-  - DOMAIN-SUFFIX,onlysing.com
-  - DOMAIN-SUFFIX,danxiaonuo.com
-  - DOMAIN-SUFFIX,danxiaonuo.me
-  - DOMAIN-SUFFIX,xiaonuo.live
   - DOMAIN-SUFFIX,iflytek.com
-  
+
   # clash
   # 域名匹配
   - DOMAIN,clash.razord.top
   - DOMAIN,yacd.haishan.me
-  
+
   # 混合
   # Apple
   - DOMAIN-SUFFIX,lcdn-registration.apple.com
   - DOMAIN-SUFFIX,mzstatic.com
-  
+
   # BAT
   - DOMAIN-SUFFIX,baidu.com
   - DOMAIN-SUFFIX,baidupcs.com
@@ -90,7 +85,7 @@ payload:
   - DOMAIN-SUFFIX,tmall.com
   - DOMAIN-SUFFIX,qq.com
   - DOMAIN-SUFFIX,qqurl.com
-  
+
   # China
   - DOMAIN-SUFFIX,126.net
   - DOMAIN-SUFFIX,163.com
@@ -140,7 +135,7 @@ payload:
   - DOMAIN-SUFFIX,ip.bjango.com
   - DOMAIN-SUFFIX,todesk.com
   - DOMAIN-SUFFIX,ceye.io
-  
+
   # 进程规则
   # 源进程名匹配
   - PROCESS-NAME,nebula

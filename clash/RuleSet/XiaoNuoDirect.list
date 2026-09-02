@@ -58,11 +58,6 @@ DOMAIN-SUFFIX,speedtest.net
 
 # xiaonuo标志
 # 域名后缀匹配
-DOMAIN-SUFFIX,iflyelf.com
-DOMAIN-SUFFIX,onlysing.com
-DOMAIN-SUFFIX,danxiaonuo.com
-DOMAIN-SUFFIX,danxiaonuo.me
-DOMAIN-SUFFIX,xiaonuo.live
 DOMAIN-SUFFIX,iflytek.com
 
 # clash
