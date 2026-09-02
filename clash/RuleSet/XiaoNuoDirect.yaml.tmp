@@ -161,7 +161,7 @@ payload:
   - PROCESS-NAME,ubusd
   - PROCESS-NAME,urngd
   - PROCESS-NAME,procd
-  #- PROCESS-NAME,smartdns
+  - PROCESS-NAME,smartdns
   - PROCESS-NAME,v2ray
   - PROCESS-NAME,xray
   - PROCESS-NAME,naive
