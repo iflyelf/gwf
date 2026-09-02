@@ -1,4 +1,5 @@
 # 代理连接
+
 # 域名关键字匹配
 DOMAIN-KEYWORD,google
 DOMAIN-KEYWORD,github
@@ -6,7 +7,18 @@ DOMAIN-KEYWORD,youtube
 DOMAIN-KEYWORD,onedrive
 DOMAIN-KEYWORD,cloudflare
 DOMAIN-KEYWORD,tiktokv
+
 # 域名后缀匹
+
+# xiaonuo标志
+# 域名后缀匹配
+DOMAIN-SUFFIX,iflyelf.com
+DOMAIN-SUFFIX,onlysing.com
+DOMAIN-SUFFIX,danxiaonuo.com
+DOMAIN-SUFFIX,danxiaonuo.me
+DOMAIN-SUFFIX,xiaonuo.live
+DOMAIN-SUFFIX,cloudflare-dns.com
+DOMAIN-SUFFIX,dns.google
 DOMAIN-SUFFIX,grafana.com
 DOMAIN-SUFFIX,cloudflare.net
 DOMAIN-SUFFIX,cloudflare.com
@@ -37,6 +49,12 @@ DOMAIN-SUFFIX,semaphoreui.com
 DOMAIN-SUFFIX,lruihao.cn
 DOMAIN-SUFFIX,koyeb.com
 DOMAIN-SUFFIX,agnes-ai.com
+
+# dns IP地址段
+IP-CIDR,1.1.1.1/32,no-resolve
+IP-CIDR,1.0.0.1/32,no-resolve
+IP-CIDR,8.8.8.8/32,no-resolve
+IP-CIDR,8.8.4.4/32,no-resolve
 
 # cloudflare IP地址段
 IP-CIDR,173.245.48.0/20,no-resolve
