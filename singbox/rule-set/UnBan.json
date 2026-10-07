@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "domain_suffix": [
+        "*.tokenplus.app",
+        "DSCloud.biz",
+        "DSCloud.me",
+        "DSCloud.mobi",
+        "DSmyNAS.com",
+        "DSmyNAS.net",
+        "DSmyNAS.org",
+        "DiskStation.me",
+        "FamilyDS.com",
+        "FamilyDS.net",
+        "FamilyDS.org",
+        "adservice.google.com",
+        "cdn-china.ampproject.org",
+        "cdn.ampproject.org",
+        "ci.android.com",
+        "cn.investing.com",
+        "dizhensubao.getui.com",
+        "firebase-settings.crashlytics.com",
+        "googletraveladservices.com",
+        "i234.me",
+        "koodomobile.ca",
+        "koodomobile.com",
+        "myDS.me",
+        "ol.epicgames.com",
+        "redirector.gvt1.com",
+        "static.typepad.com",
+        "synology.me",
+        "tools.google.com",
+        "tracking-protection.cdn.mozilla.net",
+        "www.ampproject.org",
+        "www.gov.tw",
+        "www.typepad.com"
+      ]
+    }
+  ]
+}
