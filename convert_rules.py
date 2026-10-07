@@ -147,9 +147,10 @@ def convert_clash_to_singbox(clash_file, singbox_file):
         return False
 
 def main():
-    # 路径配置
-    clash_dir = Path('/xiaonuo/workspace/tools/gwf/clash/RuleSet')
-    singbox_dir = Path('/xiaonuo/workspace/tools/gwf/singbox/rule-set')
+    # 路径配置 - 使用相对路径
+    script_dir = Path(__file__).parent
+    clash_dir = script_dir / 'clash' / 'RuleSet'
+    singbox_dir = script_dir / 'singbox' / 'rule-set'
     
     # 确保输出目录存在
     singbox_dir.mkdir(parents=True, exist_ok=True)
