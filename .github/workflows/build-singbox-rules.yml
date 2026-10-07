@@ -1,4 +1,4 @@
-name: Build sing-box Rule Sets
+name: 构建 sing-box 规则集
 
 on:
   push:
@@ -9,45 +9,78 @@ on:
       - '.github/workflows/build-singbox-rules.yml'
   workflow_dispatch:
 
+# 授予工作流写权限（用于自动提交及删除旧的 workflow run）
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install sing-box
+      - name: 获取 sing-box 最新版本
+        id: get_version
         run: |
-          wget -q -O sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.9.0/sing-box-1.9.0-linux-amd64.tar.gz
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
+          echo "version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+          echo "最新版本: ${LATEST_VERSION}"
+
+      - name: 安装 sing-box
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          echo "下载 sing-box ${VERSION}..."
+          wget -q -O sing-box.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${VERSION}/sing-box-${VERSION#v}-linux-amd64.tar.gz"
           tar -xzf sing-box.tar.gz
-          sudo cp sing-box-1.9.0-linux-amd64/sing-box /usr/local/bin/
+          sudo cp sing-box-${VERSION#v}-linux-amd64/sing-box /usr/local/bin/
           sudo chmod +x /usr/local/bin/sing-box
           sing-box version
 
-      - name: Convert Clash rules to sing-box JSON
+      - name: 转换 Clash 规则为 sing-box JSON
         run: |
+          echo "开始转换规则集..."
           python3 convert_rules.py
-        working-directory: .
+          echo "转换完成"
 
-      - name: Compile sing-box rule sets to binary format
+      - name: 编译 sing-box 规则集为二进制格式
         run: |
+          echo "开始编译规则集..."
           cd singbox/rule-set
+          compiled=0
+          failed=0
           for json_file in *.json; do
             if [ -f "$json_file" ]; then
               srs_file="${json_file%.json}.srs"
-              echo "Compiling $json_file -> $srs_file"
-              sing-box rule-set compile "$json_file" -o "$srs_file"
+              echo "编译: $json_file -> $srs_file"
+              if sing-box rule-set compile "$json_file" -o "$srs_file" 2>&1; then
+                ((compiled++))
+              else
+                echo "⚠️ 编译失败: $json_file"
+                ((failed++))
+              fi
             fi
           done
+          echo "编译完成: 成功 ${compiled} 个, 失败 ${failed} 个"
 
-      - name: Commit and push changes
+      - name: 提交并推送更改
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add singbox/rule-set/*.json singbox/rule-set/*.srs
-          git diff --staged --quiet || git commit -m "chore: update sing-box rule sets [skip ci]"
-          git push
+          if git diff --staged --quiet; then
+            echo "没有需要提交的更改"
+          else
+            git commit -m "chore: 更新 sing-box 规则集 [skip ci]"
+            git push
+            echo "✓ 规则集已更新并推送"
+          fi
+
+      - name: 删除旧的 workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          retain_days: 1
+          keep_minimum_runs: 1
