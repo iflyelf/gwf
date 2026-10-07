@@ -20,18 +20,37 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 安装 sing-box (使用官方 action)
+      - name: 获取 sing-box 最新版本
+        id: get_version
         run: |
-          # 直接下载固定版本避免兼容性问题
-          VERSION="1.10.0"
-          echo "下载 sing-box v${VERSION}..."
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
+          echo "version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+          echo "最新版本: ${LATEST_VERSION}"
+
+      - name: 安装 sing-box
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          VERSION_NUM=${VERSION#v}
+          echo "准备安装 sing-box ${VERSION}..."
           
-          curl -Lo sing-box.tar.gz "https://github.com/SagerNet/sing-box/releases/download/v${VERSION}/sing-box-${VERSION}-linux-amd64.tar.gz"
+          # 使用加速下载
+          GITHUB_URL="https://github.com/SagerNet/sing-box/releases/download/${VERSION}/sing-box-${VERSION_NUM}-linux-amd64.tar.gz"
+          DOWNLOAD_URL="https://down.xiaonuo.live?url=${GITHUB_URL}"
+          
+          echo "使用加速下载: ${DOWNLOAD_URL}"
+          wget -O sing-box.tar.gz "${DOWNLOAD_URL}"
+          
+          echo "解压文件..."
           tar -xzf sing-box.tar.gz
-          sudo install -m 755 sing-box-${VERSION}-linux-amd64/sing-box /usr/local/bin/sing-box
+          
+          echo "安装到系统..."
+          sudo install -m 755 sing-box-${VERSION_NUM}-linux-amd64/sing-box /usr/local/bin/sing-box
           
           echo "验证安装..."
           sing-box version
+          
+          echo "✓ sing-box 安装成功"
 
       - name: 转换 Clash 规则为 sing-box JSON
         run: |
@@ -46,48 +65,84 @@ jobs:
           
           compiled=0
           failed=0
+          failed_files=""
           
           for json_file in *.json; do
             if [ -f "$json_file" ]; then
               srs_file="${json_file%.json}.srs"
-              echo "编译: $json_file"
               
-              if sing-box rule-set compile "$json_file" "$srs_file"; then
+              if sing-box rule-set compile "$json_file" -o "$srs_file" 2>&1 >/dev/null; then
                 if [ -f "$srs_file" ]; then
-                  echo "  ✓ 成功"
                   ((compiled++))
                 else
-                  echo "  ✗ 失败"
                   ((failed++))
+                  failed_files="${failed_files} ${json_file}"
                 fi
               else
-                echo "  ✗ 失败"
                 ((failed++))
+                failed_files="${failed_files} ${json_file}"
               fi
             fi
           done
           
           echo ""
-          echo "编译统计: 成功 ${compiled} / 失败 ${failed}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "编译统计:"
+          echo "  成功: ${compiled} 个"
+          echo "  失败: ${failed} 个"
+          
+          if [ $failed -gt 0 ]; then
+            echo "  失败文件:${failed_files}"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "⚠️ 部分规则集编译失败"
+            exit 1
+          else
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✓ 所有规则集编译成功"
+          fi
 
       - name: 统计规则集文件
         run: |
           json_count=$(ls singbox/rule-set/*.json 2>/dev/null | wc -l)
           srs_count=$(ls singbox/rule-set/*.srs 2>/dev/null | wc -l)
-          echo "规则集: JSON ${json_count} 个, SRS ${srs_count} 个"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "规则集文件统计:"
+          echo "  JSON: ${json_count} 个"
+          echo "  SRS:  ${srs_count} 个"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          # 显示文件大小
+          echo ""
+          echo "文件大小对比 (前5个):"
+          for json in $(ls singbox/rule-set/*.json | head -5); do
+            srs="${json%.json}.srs"
+            if [ -f "$srs" ]; then
+              json_size=$(stat -f%z "$json" 2>/dev/null || stat -c%s "$json")
+              srs_size=$(stat -f%z "$srs" 2>/dev/null || stat -c%s "$srs")
+              echo "  $(basename $json): ${json_size} bytes -> $(basename $srs): ${srs_size} bytes"
+            fi
+          done
 
       - name: 提交并推送更改
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add singbox/rule-set/*.json singbox/rule-set/*.srs 2>/dev/null || true
           
-          if ! git diff --staged --quiet; then
+          # 添加所有规则集文件
+          git add singbox/rule-set/*.json
+          git add singbox/rule-set/*.srs 2>/dev/null || true
+          
+          # 检查是否有更改
+          if git diff --staged --quiet; then
+            echo "没有需要提交的更改"
+          else
+            CHANGES=$(git diff --staged --stat)
+            echo "准备提交以下更改:"
+            echo "${CHANGES}"
+            
             git commit -m "chore: 更新 sing-box 规则集 (JSON + SRS) [skip ci]"
             git push
-            echo "✓ 规则集已更新"
-          else
-            echo "无更改"
+            echo "✓ 规则集已更新并推送到 GitHub"
           fi
 
       - name: 删除旧的 workflow runs
