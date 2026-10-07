@@ -31,12 +31,26 @@ jobs:
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
           VERSION_NUM=${VERSION#v}
-          echo "下载 sing-box ${VERSION}..."
-          wget -q -O sing-box.tar.gz "https://github.com/SagerNet/sing-box/releases/download/${VERSION}/sing-box-${VERSION_NUM}-linux-amd64.tar.gz"
+          echo "准备安装 sing-box ${VERSION}..."
+          
+          # 下载并安装
+          DOWNLOAD_URL="https://github.com/SagerNet/sing-box/releases/download/${VERSION}/sing-box-${VERSION_NUM}-linux-amd64.tar.gz"
+          echo "下载地址: ${DOWNLOAD_URL}"
+          
+          wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 --tries=3 \
+            -O sing-box.tar.gz "${DOWNLOAD_URL}"
+          
+          echo "解压文件..."
           tar -xzf sing-box.tar.gz
+          
+          echo "安装到系统..."
           sudo cp sing-box-${VERSION_NUM}-linux-amd64/sing-box /usr/local/bin/
           sudo chmod +x /usr/local/bin/sing-box
+          
+          echo "验证安装..."
           sing-box version
+          
+          echo "✓ sing-box 安装成功"
 
       - name: 转换 Clash 规则为 sing-box JSON
         run: |
@@ -48,38 +62,57 @@ jobs:
         run: |
           echo "开始编译规则集为 SRS 格式..."
           cd singbox/rule-set
+          
           compiled=0
           failed=0
+          failed_files=""
           
           for json_file in *.json; do
             if [ -f "$json_file" ]; then
               srs_file="${json_file%.json}.srs"
-              echo "正在编译: $json_file -> $srs_file"
+              echo "编译: $json_file -> $srs_file"
               
-              if sing-box rule-set compile "$json_file" -o "$srs_file"; then
-                echo "  ✓ 成功"
-                ((compiled++))
+              if sing-box rule-set compile "$json_file" -o "$srs_file" 2>&1; then
+                if [ -f "$srs_file" ]; then
+                  echo "  ✓ 成功"
+                  ((compiled++))
+                else
+                  echo "  ✗ 失败 (文件未生成)"
+                  ((failed++))
+                  failed_files="${failed_files} ${json_file}"
+                fi
               else
-                echo "  ✗ 失败"
+                echo "  ✗ 失败 (编译错误)"
                 ((failed++))
+                failed_files="${failed_files} ${json_file}"
               fi
             fi
           done
           
           echo ""
-          echo "编译统计: 成功 ${compiled} 个, 失败 ${failed} 个"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "编译统计:"
+          echo "  成功: ${compiled} 个"
+          echo "  失败: ${failed} 个"
           
           if [ $failed -gt 0 ]; then
-            echo "⚠️ 部分规则集编译失败，但继续执行"
+            echo "  失败文件:${failed_files}"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "⚠️ 部分规则集编译失败，但继续执行（JSON 格式仍可用）"
+          else
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✓ 所有规则集编译成功"
           fi
-          
+
       - name: 统计规则集文件
         run: |
           json_count=$(ls singbox/rule-set/*.json 2>/dev/null | wc -l)
           srs_count=$(ls singbox/rule-set/*.srs 2>/dev/null | wc -l)
-          echo "已生成规则集:"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "规则集文件统计:"
           echo "  JSON: ${json_count} 个"
           echo "  SRS:  ${srs_count} 个"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
       - name: 提交并推送更改
         run: |
@@ -94,6 +127,10 @@ jobs:
           if git diff --staged --quiet; then
             echo "没有需要提交的更改"
           else
+            CHANGES=$(git diff --staged --stat)
+            echo "准备提交以下更改:"
+            echo "${CHANGES}"
+            
             git commit -m "chore: 更新 sing-box 规则集 (JSON + SRS) [skip ci]"
             git push
             echo "✓ 规则集已更新并推送到 GitHub"
