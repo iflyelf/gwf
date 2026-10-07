@@ -55,7 +55,7 @@ jobs:
       - name: 转换 Clash 规则为 sing-box JSON
         run: |
           echo "开始转换规则集..."
-          python3 convert_rules.py
+          python3 scripts/convert_rules.py
           echo "✓ 转换完成"
 
       - name: 编译 sing-box 规则集为 SRS 二进制格式
