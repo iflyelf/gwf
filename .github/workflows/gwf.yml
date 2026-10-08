@@ -102,6 +102,13 @@ jobs:
         echo ""
         echo "统计: JSON $(ls *.json | wc -l) 个, SRS $(ls *.srs | wc -l) 个"
     
+    # 清理临时文件
+    - name: 清理 sing-box 临时文件
+      run: |
+        echo "清理临时文件..."
+        rm -rf sing-box-*.tar.gz sing-box-*.tar.gz.* sing-box-*-linux-*/ 2>/dev/null || true
+        echo "✓ 临时文件已清理"
+    
     # 自动上传     
     - name: 自动上传
       uses: stefanzweifel/git-auto-commit-action@v7
