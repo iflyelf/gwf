@@ -149,8 +149,9 @@ def convert_clash_to_singbox(clash_file, singbox_file):
 def main():
     # 路径配置 - 使用相对路径
     script_dir = Path(__file__).parent
-    clash_dir = script_dir / 'clash' / 'RuleSet'
-    singbox_dir = script_dir / 'singbox' / 'rule-set'
+    repo_root = script_dir.parent
+    clash_dir = repo_root / 'clash' / 'RuleSet'
+    singbox_dir = repo_root / 'singbox' / 'rule-set'
     
     # 确保输出目录存在
     singbox_dir.mkdir(parents=True, exist_ok=True)
