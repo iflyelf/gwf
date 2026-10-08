@@ -1,0 +1,24 @@
+# sing-box 下载文件
+sing-box-*.tar.gz
+sing-box-*.tar.gz.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# 系统文件
+.DS_Store
+Thumbs.db
