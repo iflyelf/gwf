@@ -22,6 +22,14 @@ on:
   # 点☆Star触发开始编译
   watch:  
      types: [started]
+  # 代码推送触发（用于 sing-box 规则集更新）
+  push:
+    branches: [main]
+    paths:
+      - 'clash/RuleSet/*.yaml'
+      - 'clash/RuleSet/*.list.tmp'
+      - 'clash/RuleSet/*.yaml.tmp'
+      - 'scripts/convert_rules.py'
    
 # 授予工作流写权限（用于自动提交及删除旧的 workflow run）
 permissions:
@@ -46,6 +54,53 @@ jobs:
     - name: 自动更新GWF库
       run: |
           bash default/gwf.sh
+    
+    # 转换 Clash 规则为 sing-box JSON
+    - name: 转换 Clash 规则为 sing-box JSON
+      run: |
+        echo "开始转换规则集..."
+        cd scripts
+        python3 convert_rules.py
+        echo "✓ JSON 转换完成"
+
+    # 安装 sing-box
+    - name: 安装 sing-box
+      run: |
+        echo "获取最新版本..."
+        LATEST_VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
+        VERSION_NUM=${LATEST_VERSION#v}
+        echo "版本: ${LATEST_VERSION}"
+        
+        echo "下载 sing-box..."
+        wget -q --timeout=30 --tries=3 \
+          "https://github.com/SagerNet/sing-box/releases/download/${LATEST_VERSION}/sing-box-${VERSION_NUM}-linux-amd64.tar.gz"
+        
+        echo "安装..."
+        tar -xzf sing-box-${VERSION_NUM}-linux-amd64.tar.gz
+        sudo install -m 755 sing-box-${VERSION_NUM}-linux-amd64/sing-box /usr/local/bin/sing-box
+        
+        echo "验证..."
+        sing-box version
+
+    # 编译 sing-box 规则集为 SRS 格式
+    - name: 编译 sing-box 规则集为 SRS 格式
+      run: |
+        echo "开始编译 SRS 格式..."
+        cd singbox/rule-set
+        
+        for json_file in *.json; do
+          if [ -f "$json_file" ]; then
+            srs_file="${json_file%.json}.srs"
+            if sing-box rule-set compile "$json_file" -o "$srs_file" 2>/dev/null; then
+              echo "✓ $json_file"
+            else
+              echo "✗ $json_file (跳过)"
+            fi
+          fi
+        done
+        
+        echo ""
+        echo "统计: JSON $(ls *.json | wc -l) 个, SRS $(ls *.srs | wc -l) 个"
     
     # 自动上传     
     - name: 自动上传
