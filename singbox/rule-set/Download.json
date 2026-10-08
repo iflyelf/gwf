@@ -9,19 +9,19 @@
         "aria2"
       ],
       "process_name": [
-        "aria2c.exe",
-        "fdm.exe",
+        "DownloadService.exe",
         "Folx.exe",
         "NetTransport.exe",
         "Thunder.exe",
         "Transmission.exe",
-        "uTorrent.exe",
-        "WebTorrent.exe",
         "WebTorrent Helper.exe",
-        "qbittorrent.exe",
-        "DownloadService.exe",
+        "WebTorrent.exe",
         "Weiyun.exe",
-        "baidunetdisk.exe"
+        "aria2c.exe",
+        "baidunetdisk.exe",
+        "fdm.exe",
+        "qbittorrent.exe",
+        "uTorrent.exe"
       ]
     }
   ]
