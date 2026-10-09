@@ -151,7 +151,7 @@ def main():
     script_dir = Path(__file__).parent
     repo_root = script_dir.parent
     clash_dir = repo_root / 'clash' / 'RuleSet'
-    singbox_dir = repo_root / 'singbox' / 'rule-set'
+    singbox_dir = repo_root / 'singbox' / 'ruleset'
     
     # 确保输出目录存在
     singbox_dir.mkdir(parents=True, exist_ok=True)

@@ -86,7 +86,7 @@ jobs:
     - name: 编译 sing-box 规则集为 SRS 格式
       run: |
         echo "开始编译 SRS 格式..."
-        cd singbox/rule-set
+        cd singbox/ruleset
         
         for json_file in *.json; do
           if [ -f "$json_file" ]; then
